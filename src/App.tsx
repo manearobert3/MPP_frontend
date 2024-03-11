@@ -1,55 +1,39 @@
-import {useState} from 'react';
 import './App.css';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-const myVar = 'text';
-function App() {
-    const [count, setCount] = useState(0);
 
-    return (
-        <>
-            <div>
-                <a href='https://vitejs.dev' target='_blank'>
-                    <img src={viteLogo} className='logo' alt='Vite logo' />
-                </a>
-                <a href='https://react.dev' target='_blank'>
-                    <img
-                        src={reactLogo}
-                        className='logo react'
-                        alt='React logo'
-                    />
-                </a>
-            </div>
-            <h1>Vite + React</h1>
-            <div className='card'>
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
-                </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className='read-the-docs'>
-                Click on the Vite and React logos to learn more
+const food = [
+    {
+        id: 0,
+        name: 'Bruger',
+        kcal: '1234',
+    },
+    {
+        id: 1,
+        name: 'aaa',
+        kcal: '23',
+    },
+    {
+        id: 2,
+        name: 'desert',
+        kcal: '60',
+    },
+];
+
+// class Food extends Component {
+//     string name;
+//     render() {
+//         return <h1>Food Name: {this.props.name}</h1>;
+//     }
+// }
+
+export default function App() {
+    const listItems = food.map((food) => (
+        <li>
+            <p>
+                <b>{food.id}:</b>
+                {food.name + ', '}
+                with exactly Kcal: {food.kcal}
             </p>
-        </>
-    );
+        </li>
+    ));
+    return <ul>{listItems}</ul>;
 }
-// function MyButton() {
-//   return (
-//     <button>
-//       I'm a button
-//     </button>
-//   );
-// }
-
-// export default function MyApp() {
-//   return (
-//     <div>
-//       <h1>Welcome to my app</h1>
-//       <MyButton />
-//     </div>
-//   );
-// }
-
-export default App;
