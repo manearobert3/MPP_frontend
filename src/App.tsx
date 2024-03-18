@@ -1,97 +1,65 @@
-import {Route, BrowserRouter as Router, Routes} from 'react-router-dom';
-import {Add} from './Add';
+import { useState } from 'react';
+import { Link, Route, Routes } from 'react-router-dom';
+import Add from './Add';
 import './App.css';
 import FirstPage from './FirstPage';
-import {Update} from './Update';
-
-// let nextID = 3;
-// const food = [
-//     {
-//         id: 0,
-//         name: 'Bruger',
-//         kcal: '1234',
-//         fats: '12',
-//     },
-//     {
-//         id: 1,
-//         name: 'Apperitives',
-//         kcal: '23',
-//         fats: '13',
-//     },
-//     {
-//         id: 2,
-//         name: 'desert',
-//         kcal: '60',
-//         fats: '14',
-//     },
-// ];
+import { Update } from './Update';
 
 export default function MyForm() {
-    // const [list, setList] = useState(food);
-    // const [name, setName] = useState('');
-    // const [kcal, setKcal] = useState('');
-    // const [fats, setFats] = useState('');
-    // const handleAdd = () => {
-    //     // Validate inputs
-    //     if (!name || isNaN(Number(kcal)) || isNaN(Number(fats))) {
-    //         alert('Please enter a valid name and numeric kcal and fats value.');
-    //         return;
-    //     }
-
-    //     // Add new item to list
-    //     setList([
-    //         ...list,
-    //         {
-    //             id: nextID++,
-    //             name: name,
-    //             kcal: kcal,
-    //             fats: fats,
-    //         },
-    //     ]);
-    // };
+    const [food, setFood] = useState<FoodItem[]>([
+        {
+            id: 0,
+            name: 'Bruger',
+            kcal: '1234',
+            fats: '12',
+        },
+        {
+            id: 1,
+            name: 'Apperitives',
+            kcal: '23',
+            fats: '13',
+        },
+        {
+            id: 2,
+            name: 'desert',
+            kcal: '60',
+            fats: '14',
+        },
+    ]);
+    const addFoodItem = (item: FoodItem) => {
+        setFood([...food, item]);
+    };
     return (
-        <div className='App'>
-            <Router>
-                <Routes>
-                    <Route path='/' element={<FirstPage />} />
+        // <div className='App'>
+        <>
+            <Link to='/update'>
+                <button>Update</button>
+            </Link>
+            <Link to='/'>
+                <button>FirstPage</button>
+            </Link>
+            <Link to='/add'>
+                <button>Add</button>
+            </Link>
+            <Routes>
+                <Route path='/' element={<FirstPage />}>
                     <Route path='/update' element={<Update />} />
-                    <Route path='/add' element={<Add />} />
-                </Routes>
-            </Router>
-            {/* <h1>Input Foods:</h1>
-            <p>
-                Input Name of Food:
-                <input
-                    id='input'
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-            </p>
-
-            <p>
-                Input KCal of Food:
-                <input
-                    id='input'
-                    value={kcal}
-                    onChange={(e) => setKcal(e.target.value)}
-                />
-            </p>
-            <p>
-                Input fats of Food:
-                <input
-                    id='input'
-                    value={fats}
-                    onChange={(e) => setFats(e.target.value)}
-                />
-            </p>
-
-            <button onClick={handleAdd}>Add</button>
-            <br></br>
-            {list.map((food) => (
-                <li key={food.id}>
-                    {food.name},{food.kcal},{food.fats}
-                </li>
-            ))} */}
-        </div>
+                    <Route
+                        path='/add'
+                        element={
+                            // <FoodContext.Provider value={food}>
+                            //     <Add food={food} />
+                            // </FoodContext.Provider>
+                            <FoodContext.Provider
+                                value={{foodList: food, addFoodItem}}
+                            >
+                                <Add />
+                            </FoodContext.Provider>
+                        }
+                    />
+                </Route>
+                {/* <Route path='/add' element={<Add />} /> */}
+            </Routes>
+        </>
     );
 }

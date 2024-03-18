@@ -1,0 +1,30 @@
+.form-container {
+    text-align: center;
+}
+
+input[type='text'] {
+    height: 20px;
+    padding-left: 15px;
+    margin: 5px;
+}
+input[type='button'],
+input[type='submit'] {
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: #ee8686;
+    cursor: pointer;
+    transition: border-color 0.25s;
+    margin-left: 3px;
+}
+input[type='button']:hover {
+    border-color: #646cff;
+    background-color: grey;
+}
+input[type='submit']:hover {
+    border-color: #646cff;
+    background-color: grey;
+}
