@@ -8,20 +8,32 @@ import {
     ListItemText,
     Typography,
 } from '@mui/material';
+import axios from 'axios';
 import React, {useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import useFoodStore from './components/FoodStore';
+//import useFoodStore from './components/FoodStore';
 import Food from './components/Interface';
 
 const Detail = () => {
     const navigate = useNavigate();
     const params = useParams();
     const [food, setFood] = useState<Food>();
-    const {foods} = useFoodStore();
+    //const {foods} = useFoodStore();
     React.useEffect(() => {
-        if (params.id)
-            setFood(foods.find((food) => food.id === parseInt(params.id!)));
-    }, []);
+        // if (params.id)
+        //     setFood(foods.find((food) => food.id === parseInt(params.id!)));
+        const fetchFood = async () => {
+            try {
+                const response = await axios.get<Food>(
+                    `http://localhost:5050/api/foods/${params.id}`,
+                );
+                setFood(response.data);
+            } catch (error) {
+                console.error('Error fetching food:', error);
+            }
+        };
+        fetchFood();
+    }, [params.id]);
     return (
         <Box
             height={'100vh'}
@@ -37,6 +49,7 @@ const Detail = () => {
                     textAlign: 'center',
                     boxShadow: 6,
                     backgroundColor: '#F8F8FF',
+                    borderRadius: '16px',
                 }}
             >
                 <CardContent>

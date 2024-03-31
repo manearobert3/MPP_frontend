@@ -1,16 +1,28 @@
 import {Button, Container, CssBaseline} from '@mui/material';
 import Box from '@mui/material/Box';
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
-import React from 'react';
+import Axios from 'axios';
+import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import useFoodStore from './components/FoodStore';
-
+import Food from './components/Interface';
 const Overview = () => {
-    const {foods, deleteFood, handleOpen} = useFoodStore();
+    const {deleteFood, handleOpen} = useFoodStore();
     const navigate = useNavigate();
+    const [foods, setFoods] = useState<Food[]>([]);
 
+    const getData = async () => {
+        const response = await Axios.get<Food[]>(
+            'http://localhost:5050/api/foods/',
+        );
+        setFoods(response.data);
+    };
+    useEffect(() => {
+        getData();
+    }, []);
     const rows = foods;
-    const columns: GridColDef<(typeof rows)[number]>[] = [
+    console.log(foods);
+    const columns: GridColDef<Food[][number]>[] = [
         {field: 'id', headerName: 'ID', width: 70},
         {field: 'name', headerName: 'Food Name', width: 130},
         {field: 'calories', headerName: 'Calories', width: 130},
@@ -100,7 +112,23 @@ const Overview = () => {
                         >
                             Add
                         </Button>
-
+                        <Button
+                            variant='outlined'
+                            sx={{
+                                color: 'yellow',
+                                borderColor: 'yellow',
+                                '&:hover': {
+                                    backgroundColor: 'yellow',
+                                    color: 'white',
+                                },
+                            }}
+                            onClick={() => {
+                                navigate(`/foods/chart`);
+                                handleOpen();
+                            }}
+                        >
+                            Chart
+                        </Button>
                         <Box sx={{height: 400, width: '100%'}}>
                             <DataGrid
                                 rows={rows}
