@@ -6,7 +6,6 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import axios from 'axios';
 import React, {useState} from 'react';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import {useNavigate, useParams} from 'react-router-dom';
@@ -20,10 +19,9 @@ interface Inputs {
 }
 const Edit = () => {
     const params = useParams();
-    const {editFood, handleClose} = useFoodStore();
+    const {foods, editFood, handleClose} = useFoodStore();
     const [food, setFood] = useState<Food>();
-    // const [food, setFood] = useState(null);
-    //const [formData, setFormData] = useState<Food>();
+
     const {
         register,
         handleSubmit,
@@ -32,8 +30,8 @@ const Edit = () => {
     } = useForm<Inputs>({});
     const navigate = useNavigate();
     React.useEffect(() => {
-        // if (params.id)
-        //     setFood(foods.find((food) => food.id === parseInt(params.id!)));
+        if (params.id)
+            setFood(foods.find((food) => food.id === parseInt(params.id!)));
         // const fetchFood = async () => {
         //     try {
         //         const response = await axios.get<Food>(
@@ -47,40 +45,37 @@ const Edit = () => {
         // };
         // fetchFood();
     }, []);
-
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
+    const onSubmit: SubmitHandler<Inputs> = (data) => {
+        if (food) {
+            editFood({
+                ...food,
+                ...data,
+            });
+        }
+        reset();
+        handleClose();
+    };
+    // const onSubmit: SubmitHandler<Inputs> = async (data) => {
     //     try {
+    //         const updatedFoodData = {
+    //             id: parseInt(String(params.id)),
+    //             name: data.name,
+    //             calories: data.calories,
+    //             fats: data.fats,
+    //             description: data.description,
+    //         };
+    //         console.error('food to send:', updatedFoodData);
     //         await axios.put(
     //             `http://localhost:5050/api/foods/${params.id}`,
-    //             formData,
+    //             updatedFoodData,
     //         );
     //         navigate('/');
     //     } catch (error) {
     //         console.error('Error updating food:', error);
     //     }
+    //     reset();
+    //     handleClose();
     // };
-    const onSubmit: SubmitHandler<Inputs> = async (data) => {
-        try {
-            const updatedFoodData = {
-                id: parseInt(String(params.id)),
-                name: data.name,
-                calories: data.calories,
-                fats: data.fats,
-                description: data.description,
-            };
-            console.error('food to send:', updatedFoodData);
-            await axios.put(
-                `http://localhost:5050/api/foods/${params.id}`,
-                updatedFoodData,
-            );
-            navigate('/');
-        } catch (error) {
-            console.error('Error updating food:', error);
-        }
-        reset();
-        handleClose();
-    };
     return (
         <Box
             height={'100vh'}
