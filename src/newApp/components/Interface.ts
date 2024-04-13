@@ -1,7 +1,7 @@
 export default interface Food {
-    id: number;
-    name: string;
-    calories: number;
-    fats: number;
-    description: string;
+    FoodID: number;
+    FoodName: string;
+    Calories: number;
+    Fats: number;
+    FoodDescription: string;
 }

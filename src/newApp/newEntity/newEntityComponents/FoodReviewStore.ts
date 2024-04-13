@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 
 import {default as Axios, default as axios} from 'axios';
-import Food from './Interface';
+import Food from './FoodReviewInterface';
 interface useFoodStoreProps {
     opened: boolean;
     handleOpen: (food?: Food) => void;
@@ -12,7 +12,7 @@ interface useFoodStoreProps {
     selectedFood: Food;
     editFood: (food: Food) => void;
 }
-Axios.get<Food[]>('http://localhost:5050/api/foods')
+Axios.get<Food[]>('http://localhost:5050/api/reviews')
     .then((response) => {
         useFoodStore.setState({foods: response.data});
     })
@@ -22,7 +22,7 @@ Axios.get<Food[]>('http://localhost:5050/api/foods')
 const fetchFoods = async () => {
     try {
         const response = await axios.get<Food[]>(
-            'http://localhost:5050/api/foods',
+            'http://localhost:5050/api/reviews',
         );
         useFoodStore.setState({foods: response.data});
     } catch (error) {
@@ -52,7 +52,7 @@ const useFoodStore = create<useFoodStoreProps>((set) => ({
     editFood: async (food: Food) => {
         try {
             await axios.put(
-                `http://localhost:5050/api/foods/${food.FoodID}`,
+                `http://localhost:5050/api/reviews/${food.FoodID}`,
                 food,
             );
             fetchFoods();
@@ -61,7 +61,7 @@ const useFoodStore = create<useFoodStoreProps>((set) => ({
         }
         set((state) => ({
             foods: state.foods.map((f) =>
-                f.FoodID === food.FoodID ? food : f,
+                f.ReviewID === food.ReviewID ? food : f,
             ),
         }));
         fetchFoods();
@@ -70,18 +70,19 @@ const useFoodStore = create<useFoodStoreProps>((set) => ({
     foods: [],
     addFood: async (food: Food) => {
         try {
-            await axios.post(`http://localhost:5050/api/foods`, food);
+            await axios.post(`http://localhost:5050/api/reviews`, food);
             // Fetch updated data after successful deletion
             fetchFoods();
+            set((state) => ({foods: [...state.foods, food]}));
         } catch (error) {
             console.error('Error deleting food:', error);
+            throw error;
         }
-        set((state) => ({foods: [...state.foods, food]}));
     },
 
     deleteFood: async (foodID: number) => {
         try {
-            await axios.delete(`http://localhost:5050/api/foods/${foodID}`);
+            await axios.delete(`http://localhost:5050/api/reviews/${foodID}`);
             // Fetch updated data after successful deletion
             fetchFoods();
         } catch (error) {
@@ -89,7 +90,7 @@ const useFoodStore = create<useFoodStoreProps>((set) => ({
         }
 
         set((state) => ({
-            foods: state.foods.filter((f) => f.FoodID !== foodID),
+            foods: state.foods.filter((f) => f.ReviewID !== foodID),
         }));
     },
 }));

@@ -6,18 +6,19 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import {useNavigate} from 'react-router-dom';
-import useFoodStore from './components/FoodStore';
+import useFoodStore from './newEntityComponents/FoodReviewStore';
 interface Inputs {
-    FoodName: string;
-    Calories: number;
-    Fats: number;
-    FoodDescription: string;
+    FoodID: number;
+    ReviewText: string;
+    Rating: number;
+    AuthorName: string;
 }
-const Add = () => {
+const AddReview = () => {
     const {selectedFood, addFood} = useFoodStore();
+    const [error, setError] = useState<string>(''); // State to hold error message
 
     const {
         register,
@@ -29,12 +30,18 @@ const Add = () => {
     useEffect(() => {
         reset(selectedFood);
     }, [selectedFood]);
-    const onSubmit: SubmitHandler<Inputs> = (data) => {
-        if (selectedFood) {
-            addFood({
-                FoodID: Math.floor(Math.random() * 1000),
-                ...data,
-            });
+    const onSubmit: SubmitHandler<Inputs> = async (data) => {
+        try {
+            if (selectedFood) {
+                await addFood({
+                    ReviewID: Math.floor(Math.random() * 1000),
+                    ...data,
+                });
+                reset();
+                setError('');
+            }
+        } catch (error) {
+            setError('Failed to add review: ' + error.message); // Set error state with backend error message
         }
         reset();
     };
@@ -59,79 +66,70 @@ const Add = () => {
                     <Typography variant='h5' component='div' gutterBottom>
                         Add Form
                     </Typography>
+                    {error && ( // Display error message if error state is not empty
+                        <Typography variant='body2' color='error'>
+                            {error}
+                        </Typography>
+                    )}
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <TextField
-                            label='Name'
+                            label='FoodID'
                             fullWidth
-                            {...register('FoodName', {
+                            {...register('FoodID', {
                                 required: true,
                                 validate: {
                                     notNumber: (value) =>
-                                        isNaN(Number(value)) ||
-                                        'Name cannot be a number',
+                                        !isNaN(Number(value)) ||
+                                        'FoodID cannot not be a number',
                                 },
                             })}
                         />
-                        {errors.FoodName && (
+                        {errors.FoodID && (
                             <Typography variant='body2' color='error'>
-                                {errors.FoodName.message}
+                                {errors.FoodID.message}
                             </Typography>
                         )}
 
                         <br />
                         <br />
                         <TextField
-                            label='Calories'
+                            label='Rating'
                             fullWidth
-                            {...register('Calories', {
+                            {...register('Rating', {
                                 required: true,
                                 min: {
                                     value: 1,
-                                    message: 'Calories must be above 0',
+                                    message: 'Rating must be above 0',
+                                },
+                                max: {
+                                    value: 10,
+                                    message: 'Rating must at most 10',
                                 },
                                 validate: {
                                     validNumber: (value) =>
-                                        !isNaN(value) ||
-                                        'Calories must be a number',
+                                        !isNaN(value) || 'Rating must be text',
                                 },
                             })}
                         />
-                        {errors.Calories && (
+                        {errors.Rating && (
                             <Typography variant='body2' color='error'>
-                                {errors.Calories.message}
+                                {errors.Rating.message}
                             </Typography>
                         )}
 
                         <br />
                         <br />
                         <TextField
-                            label='Fats'
+                            label='ReviewText'
                             fullWidth
-                            {...register('Fats', {
-                                required: true,
-                                min: {
-                                    value: 1,
-                                    message: 'Fats must be above 0',
-                                },
-                                validate: {
-                                    validNumber: (value) =>
-                                        !isNaN(value) ||
-                                        'Fats must be a number',
-                                },
-                            })}
+                            {...register('ReviewText', {required: true})}
                         />
-                        {errors.Fats && (
-                            <Typography variant='body2' color='error'>
-                                {errors.Fats.message}
-                            </Typography>
-                        )}
-
                         <br />
                         <br />
                         <TextField
-                            label='Description'
+                            label='Author Name:'
                             fullWidth
-                            {...register('FoodDescription', {required: true})}
+                            {...register('AuthorName', {required: true})}
                         />
                         <br />
                         <br />
@@ -140,7 +138,7 @@ const Add = () => {
                         </Button>
                         <Button
                             variant='outlined'
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate('/review')}
                         >
                             Close
                         </Button>
@@ -151,4 +149,4 @@ const Add = () => {
     );
 };
 
-export default Add;
+export default AddReview;

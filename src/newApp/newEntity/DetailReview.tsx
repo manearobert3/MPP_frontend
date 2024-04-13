@@ -11,17 +11,19 @@ import {
 import React, {useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 //import useFoodStore from './components/FoodStore';
-import useFoodStore from './components/FoodStore';
-import Food from './components/Interface';
+import Food from './newEntityComponents/FoodReviewInterface';
+import useFoodStore from './newEntityComponents/FoodReviewStore';
 
-const Detail = () => {
+const DetailReview = () => {
     const navigate = useNavigate();
     const params = useParams();
     const [food, setFood] = useState<Food>();
     const {foods} = useFoodStore();
     React.useEffect(() => {
         if (params.id)
-            setFood(foods.find((food) => food.FoodID === parseInt(params.id!)));
+            setFood(
+                foods.find((food) => food.ReviewID === parseInt(params.id!)),
+            );
         // const fetchFood = async () => {
         //     try {
         //         const response = await axios.get<Food>(
@@ -54,7 +56,7 @@ const Detail = () => {
             >
                 <CardContent>
                     <Typography variant='h5' component='div'>
-                        Name: {food?.FoodName || ''}
+                        Review: {food?.ReviewText || ''}
                     </Typography>
                     {/* <Typography
                         sx={{fontSize: 14}}
@@ -73,27 +75,19 @@ const Detail = () => {
                         <List>
                             <ListItem>
                                 <ListItemText
-                                    primary={`Description: ${
-                                        food?.FoodDescription || ''
-                                    }`}
-                                />
-                            </ListItem>
-
-                            <ListItem>
-                                <ListItemText
-                                    primary={`Calories: ${
-                                        food?.Calories || ''
-                                    }`}
+                                    primary={`Rating: ${food?.Rating || ''}`}
                                 />
                             </ListItem>
                             <ListItem>
                                 <ListItemText
-                                    primary={`Fats: ${food?.Fats || ''}`}
+                                    primary={`Author Name: ${
+                                        food?.AuthorName || ''
+                                    }`}
                                 />
                             </ListItem>
                             <Button
                                 variant='outlined'
-                                onClick={() => navigate('/')}
+                                onClick={() => navigate('/review')}
                             >
                                 Close
                             </Button>
@@ -105,4 +99,4 @@ const Detail = () => {
     );
 };
 
-export default Detail;
+export default DetailReview;

@@ -9,15 +9,15 @@ import {
 import React, {useState} from 'react';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import {useNavigate, useParams} from 'react-router-dom';
-import useFoodStore from './components/FoodStore';
-import Food from './components/Interface';
+import Food from './newEntityComponents/FoodReviewInterface';
+import useFoodStore from './newEntityComponents/FoodReviewStore';
 interface Inputs {
-    FoodName: string;
-    Calories: number;
-    Fats: number;
-    FoodDescription: string;
+    FoodID: number;
+    ReviewText: string;
+    Rating: number;
+    AuthorName: string;
 }
-const Edit = () => {
+const EditReview = () => {
     const params = useParams();
     const {foods, editFood, handleClose} = useFoodStore();
     const [food, setFood] = useState<Food>();
@@ -31,7 +31,9 @@ const Edit = () => {
     const navigate = useNavigate();
     React.useEffect(() => {
         if (params.id)
-            setFood(foods.find((food) => food.FoodID === parseInt(params.id!)));
+            setFood(
+                foods.find((food) => food.ReviewID === parseInt(params.id!)),
+            );
         // const fetchFood = async () => {
         //     try {
         //         const response = await axios.get<Food>(
@@ -101,76 +103,63 @@ const Edit = () => {
                         {/* <form onSubmit={handleSubmit}> */}
                         <TextField
                             //defaultValue={food?.name}
-                            label='Name'
+                            label='FoodID'
                             fullWidth
-                            {...register('FoodName', {
+                            {...register('FoodID', {
                                 required: true,
                                 validate: {
                                     notNumber: (value) =>
-                                        isNaN(Number(value)) ||
-                                        'Name cannot be a number',
+                                        !isNaN(Number(value)) ||
+                                        'FoodID cannot not be a number',
                                 },
                             })}
                         />
-                        {errors.FoodName && (
+                        {errors.FoodID && (
                             <Typography variant='body2' color='error'>
-                                {errors.FoodName.message}
+                                {errors.FoodID.message}
                             </Typography>
                         )}
 
                         <br />
                         <br />
                         <TextField
-                            label='Calories'
+                            label='ReviewText'
                             fullWidth
-                            {...register('Calories', {
-                                required: true,
-                                min: {
-                                    value: 1,
-                                    message: 'Calories must be above 0',
-                                },
-                                validate: {
-                                    validNumber: (value) =>
-                                        !isNaN(value) ||
-                                        'Calories must be a number',
-                                },
-                            })}
+                            {...register('ReviewText', {required: true})}
                         />
-                        {errors.Calories && (
-                            <Typography variant='body2' color='error'>
-                                {errors.Calories.message}
-                            </Typography>
-                        )}
-
                         <br />
                         <br />
                         <TextField
-                            label='Fats'
+                            label='Rating'
                             fullWidth
-                            {...register('Fats', {
+                            {...register('Rating', {
                                 required: true,
                                 min: {
                                     value: 1,
-                                    message: 'Fats must be above 0',
+                                    message: 'Rating must be above 0',
+                                },
+                                max: {
+                                    value: 10,
+                                    message: 'Rating must be at most 10',
                                 },
                                 validate: {
                                     validNumber: (value) =>
                                         !isNaN(value) ||
-                                        'Fats must be a number',
+                                        'Rating must be a number',
                                 },
                             })}
                         />
-                        {errors.Fats && (
+                        {errors.Rating && (
                             <Typography variant='body2' color='error'>
-                                {errors.Fats.message}
+                                {errors.Rating.message}
                             </Typography>
                         )}
                         <br />
                         <br />
                         <TextField
-                            label='Description'
+                            label='AuthorName'
                             fullWidth
-                            {...register('FoodDescription', {required: true})}
+                            {...register('AuthorName', {required: true})}
                         />
                         <br />
                         <br />
@@ -179,7 +168,7 @@ const Edit = () => {
                         </Button>
                         <Button
                             variant='outlined'
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate('/review')}
                         >
                             Close
                         </Button>
@@ -190,4 +179,4 @@ const Edit = () => {
     );
 };
 
-export default Edit;
+export default EditReview;

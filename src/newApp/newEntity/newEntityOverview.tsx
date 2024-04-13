@@ -4,9 +4,9 @@ import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import axios from 'axios';
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import useFoodStore from './components/FoodStore';
-import Food from './components/Interface';
-const Overview = () => {
+import Food from './newEntityComponents/FoodReviewInterface';
+import useFoodStore from './newEntityComponents/FoodReviewStore';
+const OverviewNewEntity = () => {
     const {foods, deleteFood, handleOpen} = useFoodStore();
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState<boolean>(true); // Assume online by default
@@ -37,42 +37,38 @@ const Overview = () => {
         const interval = setInterval(checkInternetStatus, 5000); // Check every 5 seconds
         return () => clearInterval(interval);
     });
-    useEffect(() => {
-        // Update rows whenever foods change
-        setRows(foods);
-    }, [foods]);
-    const socket = new WebSocket('ws://localhost:3000');
+    // const socket = new WebSocket('ws://localhost:3000');
 
-    // Connection opened
-    socket.addEventListener('open', (event) => {
-        socket.send('Connection established');
-    });
+    // // Connection opened
+    // socket.addEventListener('open', (event) => {
+    //     socket.send('Connection established');
+    // });
 
-    // Listen for messages
-    socket.addEventListener('message', (event) => {
-        console.log('Message from server ', event.data);
-        if (event.data === 'refresh') {
-            fetchDataAndUpdateRows();
-        }
-    });
-    const sendMessage = () => {
-        socket.send('hello from frontend');
-    };
-    const fetchDataAndUpdateRows = async () => {
-        try {
-            const response = await axios.get(
-                'http://localhost:5050/api/foods/',
-            );
-            setRows(response.data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    };
+    // // Listen for messages
+    // socket.addEventListener('message', (event) => {
+    //     console.log('Message from server ', event.data);
+    //     if (event.data === 'refresh') {
+    //         fetchDataAndUpdateRows();
+    //     }
+    // });
+    // const sendMessage = () => {
+    //     socket.send('hello from frontend');
+    // };
+    // const fetchDataAndUpdateRows = async () => {
+    //     try {
+    //         const response = await axios.get(
+    //             'http://localhost:5050/api/foods/',
+    //         );
+    //         setRows(response.data);
+    //     } catch (error) {
+    //         console.error('Error fetching data:', error);
+    //     }
+    // };
 
     const columns: GridColDef<Food[][number]>[] = [
-        {field: 'FoodID', headerName: 'ID', width: 70},
-        {field: 'FoodName', headerName: 'Food Name', width: 130},
-        {field: 'Calories', headerName: 'Calories', width: 130},
+        {field: 'ReviewID', headerName: 'ReviewID', width: 70},
+        {field: 'Rating', headerName: 'Rating', width: 130},
+        {field: 'AuthorName', headerName: 'Author Name', width: 130},
         {
             field: 'actions',
             headerName: 'Actions',
@@ -88,7 +84,7 @@ const Overview = () => {
                     <Button
                         variant='outlined'
                         onClick={() => {
-                            navigate(`/foods/edit/${params.row.FoodID}`);
+                            navigate(`/review/edit/${params.row.ReviewID}`);
                         }}
                         sx={{
                             color: 'orange',
@@ -111,14 +107,16 @@ const Overview = () => {
                                 color: 'white',
                             },
                         }}
-                        onClick={() => deleteFood(params.row.FoodID)}
+                        onClick={() => deleteFood(params.row.ReviewID)}
                     >
                         Delete
                     </Button>
 
                     <Button
                         variant='outlined'
-                        onClick={() => navigate(`/foods/${params.row.FoodID}`)}
+                        onClick={() =>
+                            navigate(`/review/${params.row.ReviewID}`)
+                        }
                         sx={{
                             color: 'purple',
                             borderColor: 'purple',
@@ -157,7 +155,7 @@ const Overview = () => {
                                 },
                             }}
                             onClick={() => {
-                                navigate(`/foods/add`);
+                                navigate(`/review/add`);
                                 //   handleOpen();
                             }}
                         >
@@ -174,50 +172,17 @@ const Overview = () => {
                                 },
                             }}
                             onClick={() => {
-                                sendMessage();
+                                navigate('/');
                             }}
                         >
-                            Send message w web sockets
+                            Back To Foods
                         </Button>
-                        <Button
-                            variant='outlined'
-                            sx={{
-                                color: 'yellow',
-                                borderColor: 'yellow',
-                                '&:hover': {
-                                    backgroundColor: 'yellow',
-                                    color: 'white',
-                                },
-                            }}
-                            onClick={() => {
-                                navigate(`/foods/chart`);
-                                //   handleOpen();
-                            }}
-                        >
-                            Chart
-                        </Button>
-                        <Button
-                            variant='outlined'
-                            sx={{
-                                color: 'yellow',
-                                borderColor: 'yellow',
-                                '&:hover': {
-                                    backgroundColor: 'yellow',
-                                    color: 'white',
-                                },
-                            }}
-                            onClick={() => {
-                                navigate(`/review`);
-                                //   handleOpen();
-                            }}
-                        >
-                            Go to Food Reviews
-                        </Button>
+
                         <Box sx={{height: 400, width: '100%'}}>
                             <DataGrid
-                                rows={rows}
+                                rows={foods}
                                 columns={columns}
-                                getRowId={(row) => row.FoodID}
+                                getRowId={(row) => row.ReviewID}
                                 initialState={{
                                     pagination: {
                                         paginationModel: {
@@ -237,4 +202,4 @@ const Overview = () => {
     );
 };
 
-export default Overview;
+export default OverviewNewEntity;

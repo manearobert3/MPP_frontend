@@ -17,11 +17,11 @@ const Chart = () => {
         };
 
         foods.forEach((item) => {
-            if (item.calories < 50) {
+            if (item.Calories < 50) {
                 categorizedData['<50 Calories'] += 1;
-            } else if (item.calories >= 50 && item.calories < 100) {
+            } else if (item.Calories >= 50 && item.Calories < 100) {
                 categorizedData['50-100 Calories'] += 1;
-            } else if (item.calories >= 100 && item.calories < 150) {
+            } else if (item.Calories >= 100 && item.Calories < 150) {
                 categorizedData['100-150 Calories'] += 1;
             } else {
                 categorizedData['>150 Calories'] += 1;
