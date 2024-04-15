@@ -21,6 +21,7 @@ const EditReview = () => {
     const params = useParams();
     const {foods, editFood, handleClose} = useFoodStore();
     const [food, setFood] = useState<Food>();
+    const [error, setError] = useState<string>(''); // State to hold error message
 
     const {
         register,
@@ -47,12 +48,16 @@ const EditReview = () => {
         // };
         // fetchFood();
     }, []);
-    const onSubmit: SubmitHandler<Inputs> = (data) => {
-        if (food) {
-            editFood({
-                ...food,
-                ...data,
-            });
+    const onSubmit: SubmitHandler<Inputs> = async (data) => {
+        try {
+            if (food) {
+                await editFood({
+                    ...food,
+                    ...data,
+                });
+            }
+        } catch (error) {
+            setError('Failed to update review: ' + error.message); // Set error state with backend error message
         }
         reset();
         handleClose();
@@ -99,6 +104,11 @@ const EditReview = () => {
                     <Typography variant='h5' component='div' gutterBottom>
                         Edit Form
                     </Typography>
+                    {error && ( // Display error message if error state is not empty
+                        <Typography variant='body2' color='error'>
+                            {error}
+                        </Typography>
+                    )}
                     <form onSubmit={handleSubmit(onSubmit)}>
                         {/* <form onSubmit={handleSubmit}> */}
                         <TextField

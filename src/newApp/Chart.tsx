@@ -1,5 +1,7 @@
 import {Box, Button, Card} from '@mui/material';
 import {PieChart} from '@mui/x-charts/PieChart';
+import axios from 'axios';
+import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import useFoodStore from './components/FoodStore';
 import Food from './components/Interface';
@@ -8,6 +10,8 @@ const Chart = () => {
     const navigate = useNavigate();
 
     const {foods} = useFoodStore();
+    const [rows, setRows] = useState<Food[]>(foods);
+
     const categorizeData = (foods: Food[]) => {
         const categorizedData = {
             '<50 Calories': 0,
@@ -30,6 +34,31 @@ const Chart = () => {
 
         return categorizedData;
     };
+    const socket = new WebSocket('ws://localhost:3000');
+
+    // Connection opened
+    socket.addEventListener('open', (event) => {
+        socket.send('Connection established');
+    });
+
+    // Listen for messages
+    socket.addEventListener('message', (event) => {
+        console.log('Message from server ', event.data);
+        if (event.data === 'refresh') {
+            fetchDataAndUpdateRows();
+        }
+    });
+
+    const fetchDataAndUpdateRows = async () => {
+        try {
+            const response = await axios.get(
+                'http://localhost:5050/api/foods/',
+            );
+            setRows(response.data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
     const prepareChartData = (data: Food[]) => {
         const categorizedData = categorizeData(data);
 
@@ -43,7 +72,7 @@ const Chart = () => {
 
         return chartData;
     };
-    const chartData = prepareChartData(foods);
+    const chartData = prepareChartData(rows);
 
     return (
         <>

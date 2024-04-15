@@ -7,7 +7,7 @@ import {useNavigate} from 'react-router-dom';
 import useFoodStore from './components/FoodStore';
 import Food from './components/Interface';
 const Overview = () => {
-    const {foods, deleteFood, handleOpen} = useFoodStore();
+    const {foods, deleteFood} = useFoodStore();
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState<boolean>(true); // Assume online by default
     //const [foods, setFoods] = useState<Food[]>([]);

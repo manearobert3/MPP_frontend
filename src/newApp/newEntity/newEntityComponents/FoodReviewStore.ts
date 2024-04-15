@@ -56,15 +56,16 @@ const useFoodStore = create<useFoodStoreProps>((set) => ({
                 food,
             );
             fetchFoods();
+            set((state) => ({
+                foods: state.foods.map((f) =>
+                    f.ReviewID === food.ReviewID ? food : f,
+                ),
+            }));
+            fetchFoods();
         } catch (error) {
             console.error('Error updating food:', error);
+            throw error;
         }
-        set((state) => ({
-            foods: state.foods.map((f) =>
-                f.ReviewID === food.ReviewID ? food : f,
-            ),
-        }));
-        fetchFoods();
     },
     handleClose: () => set({opened: false, selectedFood: {} as Food}),
     foods: [],
