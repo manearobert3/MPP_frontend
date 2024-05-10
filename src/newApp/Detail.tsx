@@ -33,7 +33,7 @@ const Detail = () => {
         //     }
         // };
         // fetchFood();
-    }, [params.id]);
+    }, [params.id, foods]);
     return (
         <Box
             height={'100vh'}

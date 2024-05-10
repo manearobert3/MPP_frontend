@@ -28,7 +28,7 @@ const Add = () => {
     const navigate = useNavigate();
     useEffect(() => {
         reset(selectedFood);
-    }, [selectedFood]);
+    }, [selectedFood, reset]);
     const onSubmit: SubmitHandler<Inputs> = (data) => {
         if (selectedFood) {
             addFood({

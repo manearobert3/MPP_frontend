@@ -17,12 +17,12 @@ interface Inputs {
     Rating: number;
     AuthorName: string;
 }
+
 const EditReview = () => {
     const params = useParams();
     const {foods, editFood, handleClose} = useFoodStore();
     const [food, setFood] = useState<Food>();
     const [error, setError] = useState<string>(''); // State to hold error message
-
     const {
         register,
         handleSubmit,

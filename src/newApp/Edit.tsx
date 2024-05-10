@@ -44,7 +44,7 @@ const Edit = () => {
         //     }
         // };
         // fetchFood();
-    }, []);
+    }, [foods, params.id]);
     const onSubmit: SubmitHandler<Inputs> = (data) => {
         if (food) {
             editFood({

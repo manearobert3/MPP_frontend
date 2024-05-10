@@ -37,7 +37,7 @@ const Chart = () => {
     const socket = new WebSocket('ws://localhost:3000');
 
     // Connection opened
-    socket.addEventListener('open', (event) => {
+    socket.addEventListener('open', () => {
         socket.send('Connection established');
     });
 

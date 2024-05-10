@@ -7,7 +7,7 @@ import {useNavigate} from 'react-router-dom';
 import Food from './newEntityComponents/FoodReviewInterface';
 import useFoodStore from './newEntityComponents/FoodReviewStore';
 const OverviewNewEntity = () => {
-    const {foods, deleteFood, handleOpen} = useFoodStore();
+    const {foods, deleteFood} = useFoodStore();
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState<boolean>(true); // Assume online by default
     //const [foods, setFoods] = useState<Food[]>([]);
@@ -32,6 +32,10 @@ const OverviewNewEntity = () => {
             setIsOnline(false); // If there's an error, assume offline
         }
     };
+    useEffect(() => {
+        // Update rows whenever foods change
+        setRows(foods);
+    }, [foods]);
     useEffect(() => {
         checkInternetStatus();
         const interval = setInterval(checkInternetStatus, 5000); // Check every 5 seconds
@@ -180,7 +184,7 @@ const OverviewNewEntity = () => {
 
                         <Box sx={{height: 400, width: '100%'}}>
                             <DataGrid
-                                rows={foods}
+                                rows={rows}
                                 columns={columns}
                                 getRowId={(row) => row.ReviewID}
                                 initialState={{

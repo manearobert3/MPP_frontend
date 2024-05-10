@@ -1,12 +1,30 @@
-import {Button, Container, CssBaseline} from '@mui/material';
+import {
+    Button,
+    Container,
+    CssBaseline,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+} from '@mui/material';
 import Box from '@mui/material/Box';
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import axios from 'axios';
 import React, {useEffect, useState} from 'react';
+import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
+import useSignOut from 'react-auth-kit/hooks/useSignOut';
 import {useNavigate} from 'react-router-dom';
 import useFoodStore from './components/FoodStore';
 import Food from './components/Interface';
+
 const Overview = () => {
+    const authHeader = useAuthHeader();
+    const [open, setOpen] = useState(false);
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const [username, setUsername] = useState('');
+
     const {foods, deleteFood} = useFoodStore();
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState<boolean>(true); // Assume online by default
@@ -41,10 +59,11 @@ const Overview = () => {
         // Update rows whenever foods change
         setRows(foods);
     }, [foods]);
+
     const socket = new WebSocket('ws://localhost:3000');
 
     // Connection opened
-    socket.addEventListener('open', (event) => {
+    socket.addEventListener('open', () => {
         socket.send('Connection established');
     });
 
@@ -68,6 +87,38 @@ const Overview = () => {
             console.error('Error fetching data:', error);
         }
     };
+    const generateFoodData = async () => {
+        try {
+            await axios.post('http://localhost:5050/api/generate-food-data');
+            // Once the data generation is complete, fetch the updated data
+            fetchDataAndUpdateRows();
+        } catch (error) {
+            console.error('Error generating food data:', error);
+        }
+    };
+
+    const signOut = useSignOut();
+
+    const getCredentials = async () => {
+        try {
+            const response = await axios.get(
+                'http://localhost:5050/api/login/getinfo',
+                {
+                    headers: {
+                        Authorization: authHeader,
+                    },
+                },
+            );
+            const {userName} = response.data;
+            setUsername(userName);
+            setOpen(true);
+            // Handle response data here
+            console.log('Response:', response.data);
+        } catch (error) {
+            // Handle error
+            console.error('Error:', error);
+        }
+    };
 
     const columns: GridColDef<Food[][number]>[] = [
         {field: 'FoodID', headerName: 'ID', width: 70},
@@ -76,7 +127,7 @@ const Overview = () => {
         {
             field: 'actions',
             headerName: 'Actions',
-            width: 300,
+            width: 500,
             renderCell: (params) => (
                 // <ButtonGroup
                 //     variant='outlined'
@@ -130,6 +181,22 @@ const Overview = () => {
                     >
                         Detail
                     </Button>
+                    <Button
+                        variant='outlined'
+                        onClick={() =>
+                            navigate(`/foodandreview/${params.row.FoodID}`)
+                        }
+                        sx={{
+                            color: 'purple',
+                            borderColor: 'purple',
+                            '&:hover': {
+                                backgroundColor: 'purple',
+                                color: 'white',
+                            },
+                        }}
+                    >
+                        See Food Reviews
+                    </Button>
                 </>
             ),
         },
@@ -145,7 +212,48 @@ const Overview = () => {
                 <Container maxWidth='lg'>
                     <Box sx={{height: '100vh'}}>
                         <h1>CRUD App</h1>
-
+                        <Button
+                            variant='outlined'
+                            sx={{
+                                color: 'green',
+                                borderColor: 'green',
+                                '&:hover': {
+                                    backgroundColor: 'green',
+                                    color: 'white',
+                                },
+                            }}
+                            onClick={() => {
+                                signOut();
+                                navigate(`/login`);
+                            }}
+                        >
+                            Logout
+                        </Button>
+                        <Button
+                            variant='outlined'
+                            sx={{
+                                color: 'green',
+                                borderColor: 'green',
+                                '&:hover': {
+                                    backgroundColor: 'green',
+                                    color: 'white',
+                                },
+                            }}
+                            onClick={() => {
+                                getCredentials();
+                            }}
+                        >
+                            Get Credentials
+                        </Button>
+                        <Dialog open={open} onClose={handleClose}>
+                            <DialogTitle>User Credentials</DialogTitle>
+                            <DialogContent>
+                                <p>Username: {username}</p>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleClose}>Close</Button>
+                            </DialogActions>
+                        </Dialog>
                         <Button
                             variant='outlined'
                             sx={{
@@ -212,6 +320,38 @@ const Overview = () => {
                             }}
                         >
                             Go to Food Reviews
+                        </Button>
+                        <Button
+                            variant='outlined'
+                            sx={{
+                                color: 'green',
+                                borderColor: 'green',
+                                '&:hover': {
+                                    backgroundColor: 'green',
+                                    color: 'white',
+                                },
+                            }}
+                            onClick={() => {
+                                generateFoodData();
+                            }}
+                        >
+                            Insert Multiple Food And Food Reviews
+                        </Button>
+                        <Button
+                            variant='outlined'
+                            sx={{
+                                color: 'green',
+                                borderColor: 'green',
+                                '&:hover': {
+                                    backgroundColor: 'green',
+                                    color: 'white',
+                                },
+                            }}
+                            onClick={() => {
+                                navigate('/joinedTables');
+                            }}
+                        >
+                            Go to multiple food reviews
                         </Button>
                         <Box sx={{height: 400, width: '100%'}}>
                             <DataGrid
