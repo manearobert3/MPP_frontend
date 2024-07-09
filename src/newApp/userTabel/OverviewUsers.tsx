@@ -5,10 +5,7 @@ import axios from 'axios';
 import React, {useEffect, useState} from 'react';
 import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
 import {useNavigate} from 'react-router-dom';
-import config from './config.json';
-import Food from './newEntityComponents/FoodReviewInterface';
-import useFoodStore from './newEntityComponents/FoodReviewStore';
-
+import config from '../../config.json';
 const colors = {
     lightGray: '#e0e4ef',
     mediumGray: '#b0b8d6',
@@ -20,12 +17,11 @@ const colors = {
     darkestBlue: '#3b479d',
 };
 
-const OverviewNewEntity = () => {
-    const {foods, deleteFood} = useFoodStore();
+const OverviewUsers = () => {
     const navigate = useNavigate();
     const [role, setRole] = useState('');
-    const [isOnline, setIsOnline] = useState<boolean>(true); // Assume online by default
-    const [rows, setRows] = useState<Food[]>(foods);
+    const [isOnline, setIsOnline] = useState(true); // Assume online by default
+    const [users, setUsers] = useState([]);
     const authHeader = useAuthHeader();
 
     const checkInternetStatus = async () => {
@@ -49,26 +45,30 @@ const OverviewNewEntity = () => {
                     },
                 },
             );
-            const role = response.data;
+            const role = response.data.role;
             setRole(role);
-
-            // Handle response data here
-            console.log('Response:', response.data);
         } catch (error) {
-            // Handle error
             console.error('Error:', error);
         }
     };
 
-    useEffect(() => {
-        // Call getCredentials when the component mounts
-        getCredentials();
-    }, []);
+    const fetchUsers = async () => {
+        try {
+            const response = await axios.get(`${config.SERVER_URL}/api/users`, {
+                headers: {
+                    Authorization: authHeader,
+                },
+            });
+            setUsers(response.data);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
 
     useEffect(() => {
-        // Update rows whenever foods change
-        setRows(foods);
-    }, [foods]);
+        getCredentials();
+        fetchUsers();
+    }, []);
 
     useEffect(() => {
         checkInternetStatus();
@@ -76,97 +76,65 @@ const OverviewNewEntity = () => {
         return () => clearInterval(interval);
     });
 
-    const socket = new WebSocket('ws://localhost:4000');
-
-    // Connection opened
-    socket.addEventListener('open', (event) => {
-        socket.send('Connection established');
-    });
-
-    // Listen for messages
-    socket.addEventListener('message', (event) => {
-        console.log('Message from server ', event.data);
-        if (event.data === 'refresh') {
-            fetchDataAndUpdateRows();
-        }
-    });
-
-    const fetchDataAndUpdateRows = async () => {
+    const deleteUser = async (UserName) => {
         try {
-            const response = await axios.get(
-                'http://localhost:5000/api/reviews/',
-            );
-            setRows(response.data);
+            await axios.delete(`${config.SERVER_URL}/api/users/${UserName}`, {
+                headers: {
+                    Authorization: authHeader,
+                },
+            });
+            fetchUsers(); // Refresh the user list
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error deleting user:', error);
         }
     };
 
-    const columns: GridColDef<Food[][number]>[] = [
-        {field: 'ReviewID', headerName: 'ReviewID', width: 70},
-        {field: 'Rating', headerName: 'Rating', width: 130},
-        {field: 'AuthorName', headerName: 'Author Name', width: 130},
+    const columns: GridColDef[] = [
+        {field: 'UserName', headerName: 'UserName', width: 150},
+        {field: 'PasswordMpp', headerName: 'Password', width: 150},
+        {field: 'role', headerName: 'Role', width: 150},
         {
             field: 'actions',
             headerName: 'Actions',
             width: 300,
             renderCell: (params) => (
                 <>
-                    {(role === 'admin' || role === 'manager') && (
+                    {role === 'admin' && (
                         <Button
                             variant='outlined'
-                            onClick={() => {
-                                navigate(`/review/edit/${params.row.ReviewID}`);
-                            }}
+                            onClick={() =>
+                                navigate(`/users/edit/${params.row.UserName}`)
+                            }
                             sx={{
+                                color: 'orange',
+                                borderColor: 'orange',
                                 backgroundColor: 'white',
-                                color: colors.darkBlue,
-                                borderColor: colors.darkBlue,
                                 '&:hover': {
-                                    backgroundColor: colors.darkBlue,
+                                    backgroundColor: 'orange',
                                     color: 'white',
                                 },
-                                marginRight: 1,
                             }}
                         >
                             Edit
                         </Button>
                     )}
-                    {(role === 'admin' || role === 'manager') && (
+                    {role === 'admin' && (
                         <Button
                             variant='outlined'
                             sx={{
-                                backgroundColor: 'white',
                                 color: 'red',
                                 borderColor: 'red',
+                                backgroundColor: 'white',
                                 '&:hover': {
                                     backgroundColor: 'red',
                                     color: 'white',
                                 },
-                                marginRight: 1,
                             }}
-                            onClick={() => deleteFood(params.row.ReviewID)}
+                            onClick={() => deleteUser(params.row.UserName)}
                         >
                             Delete
                         </Button>
                     )}
-                    <Button
-                        variant='outlined'
-                        onClick={() =>
-                            navigate(`/review/${params.row.ReviewID}`)
-                        }
-                        sx={{
-                            backgroundColor: 'white',
-                            color: 'purple',
-                            borderColor: 'purple',
-                            '&:hover': {
-                                backgroundColor: 'purple',
-                                color: 'white',
-                            },
-                        }}
-                    >
-                        Detail
-                    </Button>
                 </>
             ),
         },
@@ -176,6 +144,7 @@ const OverviewNewEntity = () => {
         <div>
             <React.Fragment>
                 <CssBaseline />
+
                 <Container maxWidth='lg'>
                     <Box
                         sx={{
@@ -193,13 +162,14 @@ const OverviewNewEntity = () => {
                                 borderRadius: '5px',
                                 display: 'inline-block',
                                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                color: colors.darkestBlue,
+                                color: '#6a73ae',
                                 textAlign: 'center', // Add this line
                             }}
                         >
-                            Review List
+                            Users Management
                         </Typography>
                         <br></br>
+
                         <br></br>
                         <Box
                             sx={{
@@ -208,26 +178,6 @@ const OverviewNewEntity = () => {
                                 paddingBottom: 2,
                             }}
                         >
-                            {(role === 'admin' || role === 'manager') && (
-                                <Button
-                                    variant='outlined'
-                                    sx={{
-                                        backgroundColor: 'white',
-                                        color: 'green',
-                                        borderColor: 'green',
-                                        marginRight: 2,
-                                        '&:hover': {
-                                            backgroundColor: 'green',
-                                            color: 'white',
-                                        },
-                                    }}
-                                    onClick={() => {
-                                        navigate(`/review/add`);
-                                    }}
-                                >
-                                    Add
-                                </Button>
-                            )}
                             <Button
                                 variant='outlined'
                                 sx={{
@@ -240,11 +190,10 @@ const OverviewNewEntity = () => {
                                         color: 'white',
                                     },
                                 }}
-                                onClick={() => {
-                                    navigate('/');
-                                }}
+                                s
+                                onClick={() => navigate('/')}
                             >
-                                Back To Foods
+                                Back To Home
                             </Button>
                         </Box>
                         <Box
@@ -258,9 +207,9 @@ const OverviewNewEntity = () => {
                             }}
                         >
                             <DataGrid
-                                rows={rows}
+                                rows={users}
                                 columns={columns}
-                                getRowId={(row) => row.ReviewID}
+                                getRowId={(row) => row.UserName}
                                 initialState={{
                                     pagination: {
                                         paginationModel: {
@@ -280,4 +229,4 @@ const OverviewNewEntity = () => {
     );
 };
 
-export default OverviewNewEntity;
+export default OverviewUsers;

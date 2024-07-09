@@ -4,4 +4,7 @@ export default interface Food {
     Calories: number;
     Fats: number;
     FoodDescription: string;
+    FoodType: string;
+    Protein: number;
+    Sugar: number;
 }

@@ -3,6 +3,7 @@ import AuthProvider from 'react-auth-kit';
 import createStore from 'react-auth-kit/createStore';
 import {BrowserRouter} from 'react-router-dom';
 import Routing from './Routing';
+import './style.css';
 interface IUserData {
     name: string;
 }

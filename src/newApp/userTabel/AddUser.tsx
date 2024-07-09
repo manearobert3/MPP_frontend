@@ -3,46 +3,49 @@ import {
     Button,
     Card,
     CardContent,
-    Rating,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
     TextField,
     Typography,
 } from '@mui/material';
+import axios from 'axios';
 import {useState} from 'react';
-import {Controller, SubmitHandler, useForm} from 'react-hook-form';
-import {useNavigate, useParams} from 'react-router-dom';
-import useFoodStore from './newEntityComponents/FoodReviewStore';
+import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
+import {SubmitHandler, useForm} from 'react-hook-form';
+import {useNavigate} from 'react-router-dom';
+import config from '../../config.json';
 
 interface Inputs {
-    ReviewText: string;
-    Rating: number;
-    AuthorName: string;
+    UserName: string;
+    PasswordMpp: string;
+    role: string;
 }
 
-const AddReview = () => {
-    const {addFood} = useFoodStore();
-    const [error, setError] = useState<string>(''); // State to hold error message
-    const {id} = useParams(); // Get food ID from the route params
-
+const AddUser = () => {
     const {
         register,
         handleSubmit,
-        control,
         reset,
         formState: {errors},
     } = useForm<Inputs>({});
     const navigate = useNavigate();
+    const authHeader = useAuthHeader();
+    const [error, setError] = useState<string>(''); // State to hold error message
 
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
         try {
-            await addFood({
-                FoodID: parseInt(id!), // Set the FoodID from the route params
-                ...data,
+            await axios.post(`${config.SERVER_URL}/api/users`, data, {
+                headers: {
+                    Authorization: authHeader,
+                },
             });
             reset();
             setError('');
-            navigate(`/foods/${id}`); // Navigate back to the food detail page
+            navigate('/users'); // Navigate back to users overview
         } catch (error) {
-            setError('Failed to add review: ' + error); // Set error state with backend error message
+            setError('Failed to add user: ' + error.message); // Set error state with backend error message
         }
     };
 
@@ -65,56 +68,53 @@ const AddReview = () => {
             >
                 <CardContent>
                     <Typography variant='h5' component='div' gutterBottom>
-                        Add Review
+                        Add User
                     </Typography>
-                    {error && ( // Display error message if error state is not empty
+                    {error && (
                         <Typography variant='body2' color='error'>
                             {error}
                         </Typography>
                     )}
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <TextField
-                            label='Review Text'
+                            label='UserName'
                             fullWidth
-                            {...register('ReviewText', {required: true})}
+                            {...register('UserName', {required: true})}
                         />
-                        {errors.ReviewText && (
+                        {errors.UserName && (
                             <Typography variant='body2' color='error'>
-                                {errors.ReviewText.message}
-                            </Typography>
-                        )}
-                        <br />
-                        <br />
-                        <Typography component='legend'>Rating</Typography>
-                        <Controller
-                            name='Rating'
-                            control={control}
-                            defaultValue={0}
-                            render={({field}) => (
-                                <Rating
-                                    {...field}
-                                    value={field.value}
-                                    onChange={(_, value) =>
-                                        field.onChange(value)
-                                    }
-                                />
-                            )}
-                        />
-                        {errors.Rating && (
-                            <Typography variant='body2' color='error'>
-                                {errors.Rating.message}
+                                {errors.UserName.message}
                             </Typography>
                         )}
                         <br />
                         <br />
                         <TextField
-                            label='Author Name'
+                            label='Password'
                             fullWidth
-                            {...register('AuthorName', {required: true})}
+                            {...register('PasswordMpp', {required: true})}
                         />
-                        {errors.AuthorName && (
+                        {errors.PasswordMpp && (
                             <Typography variant='body2' color='error'>
-                                {errors.AuthorName.message}
+                                {errors.PasswordMpp.message}
+                            </Typography>
+                        )}
+                        <br />
+                        <br />
+                        <FormControl fullWidth>
+                            <InputLabel>Role</InputLabel>
+                            <Select
+                                label='Role'
+                                defaultValue=''
+                                {...register('role', {required: true})}
+                            >
+                                <MenuItem value='user'>User</MenuItem>
+                                <MenuItem value='admin'>Admin</MenuItem>
+                                <MenuItem value='manager'>Manager</MenuItem>
+                            </Select>
+                        </FormControl>
+                        {errors.role && (
+                            <Typography variant='body2' color='error'>
+                                {errors.role.message}
                             </Typography>
                         )}
                         <br />
@@ -124,7 +124,7 @@ const AddReview = () => {
                         </Button>
                         <Button
                             variant='outlined'
-                            onClick={() => navigate(`/foods/${id}`)}
+                            onClick={() => navigate('/users')}
                         >
                             Close
                         </Button>
@@ -135,4 +135,4 @@ const AddReview = () => {
     );
 };
 
-export default AddReview;
+export default AddUser;

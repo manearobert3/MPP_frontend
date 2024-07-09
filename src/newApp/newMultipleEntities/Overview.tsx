@@ -4,6 +4,8 @@ import axios from 'axios';
 import React, {useEffect, useState} from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {useNavigate} from 'react-router-dom';
+import config from '../newEntity/config.json';
+
 interface FoodJoined {
     FoodID: number;
     FoodName: string;
@@ -13,38 +15,50 @@ interface FoodJoined {
     ReviewID: number;
     RowNum: number;
 }
+
 const OverviewJoinedTables = () => {
     const [pageNumber, setPageNumber] = useState(1);
-    const [pageSize] = useState(5);
+    //const [pageSize] = useState(5);
     const navigate = useNavigate();
     const [hasMore, setHasMore] = useState(true);
-    // const [isFetching, setIsFetching] = useState(false);
-    const [allFoods, setAllFoods] = useState([] as FoodJoined[]);
-    const [displayedFoods, setDisplayedFoods] = useState<FoodJoined[]>([]);
+    const [allFoods, setAllFoods] = useState<FoodJoined[]>([]);
+
     useEffect(() => {
-        fetchData();
+        // Initial fetch when the component mounts
+        fetchData(1);
     }, []);
+
     const loadMoreData = async () => {
         try {
             const response = await axios.get(
-                `http://localhost:5050/api/food-foodreviews?pageNumber=${pageNumber}`,
+                `${config.SERVER_URL}/api/food-foodreviews?pageNumber=${pageNumber}`,
             );
             const newFoods = response.data;
 
-            setAllFoods(allFoods.concat(newFoods));
-            setPageNumber(pageNumber + 1);
+            if (newFoods.length === 0) {
+                setHasMore(false);
+            } else {
+                setAllFoods((prevFoods) => [...prevFoods, ...newFoods]);
+                setPageNumber((prevPageNumber) => prevPageNumber + 1);
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
-    const fetchData = async () => {
+
+    const fetchData = async (page: number) => {
         try {
             const response = await axios.get(
-                `http://localhost:5050/api/food-foodreviews?pageNumber=${pageNumber}`,
+                `${config.SERVER_URL}/api/food-foodreviews?pageNumber=${page}`,
             );
             const newFoods = response.data;
-            setPageNumber(pageNumber + 1);
-            setAllFoods(allFoods.concat(newFoods));
+
+            if (newFoods.length === 0) {
+                setHasMore(false);
+            } else {
+                setAllFoods(newFoods);
+                setPageNumber(page + 1);
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
             setHasMore(false);

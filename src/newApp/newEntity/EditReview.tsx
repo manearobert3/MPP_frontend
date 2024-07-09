@@ -3,16 +3,17 @@ import {
     Button,
     Card,
     CardContent,
+    Rating,
     TextField,
     Typography,
 } from '@mui/material';
 import React, {useState} from 'react';
-import {SubmitHandler, useForm} from 'react-hook-form';
+import {Controller, SubmitHandler, useForm} from 'react-hook-form';
 import {useNavigate, useParams} from 'react-router-dom';
-import Food from './newEntityComponents/FoodReviewInterface';
+import FoodReview from './newEntityComponents/FoodReviewInterface';
 import useFoodStore from './newEntityComponents/FoodReviewStore';
+
 interface Inputs {
-    FoodID: number;
     ReviewText: string;
     Rating: number;
     AuthorName: string;
@@ -21,68 +22,49 @@ interface Inputs {
 const EditReview = () => {
     const params = useParams();
     const {foods, editFood, handleClose} = useFoodStore();
-    const [food, setFood] = useState<Food>();
+    const [review, setReview] = useState<FoodReview>();
     const [error, setError] = useState<string>(''); // State to hold error message
+
     const {
         register,
         handleSubmit,
+        control,
+        setValue,
         reset,
         formState: {errors},
     } = useForm<Inputs>({});
     const navigate = useNavigate();
+
     React.useEffect(() => {
-        if (params.id)
-            setFood(
-                foods.find((food) => food.ReviewID === parseInt(params.id!)),
+        if (params.id) {
+            const foundReview = foods.find(
+                (food) => food.ReviewID === parseInt(params.id!),
             );
-        // const fetchFood = async () => {
-        //     try {
-        //         const response = await axios.get<Food>(
-        //             `http://localhost:5050/api/foods/${params.id}`,
-        //         );
-        //         setFood(response.data);
-        //         setFormData(response.data); // Set form data with fetched food details
-        //     } catch (error) {
-        //         console.error('Error fetching food:', error);
-        //     }
-        // };
-        // fetchFood();
-    }, []);
+            setReview(foundReview);
+            if (foundReview) {
+                setValue('ReviewText', foundReview.ReviewText);
+                setValue('Rating', foundReview.Rating);
+                setValue('AuthorName', foundReview.AuthorName);
+            }
+        }
+    }, [params.id, foods, setValue]);
+
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
         try {
-            if (food) {
+            if (review) {
                 await editFood({
-                    ...food,
+                    ...review,
                     ...data,
                 });
             }
         } catch (error) {
-            setError('Failed to update review: ' + error.message); // Set error state with backend error message
+            setError('Failed to update review: ' + error); // Set error state with backend error message
         }
         reset();
         handleClose();
+        navigate('/review'); // Navigate back to the review page after submission
     };
-    // const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    //     try {
-    //         const updatedFoodData = {
-    //             id: parseInt(String(params.id)),
-    //             name: data.name,
-    //             calories: data.calories,
-    //             fats: data.fats,
-    //             description: data.description,
-    //         };
-    //         console.error('food to send:', updatedFoodData);
-    //         await axios.put(
-    //             `http://localhost:5050/api/foods/${params.id}`,
-    //             updatedFoodData,
-    //         );
-    //         navigate('/');
-    //     } catch (error) {
-    //         console.error('Error updating food:', error);
-    //     }
-    //     reset();
-    //     handleClose();
-    // };
+
     return (
         <Box
             height={'100vh'}
@@ -102,7 +84,7 @@ const EditReview = () => {
             >
                 <CardContent>
                     <Typography variant='h5' component='div' gutterBottom>
-                        Edit Form
+                        Edit Review
                     </Typography>
                     {error && ( // Display error message if error state is not empty
                         <Typography variant='body2' color='error'>
@@ -110,54 +92,32 @@ const EditReview = () => {
                         </Typography>
                     )}
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        {/* <form onSubmit={handleSubmit}> */}
                         <TextField
-                            //defaultValue={food?.name}
-                            label='FoodID'
-                            fullWidth
-                            {...register('FoodID', {
-                                required: true,
-                                validate: {
-                                    notNumber: (value) =>
-                                        !isNaN(Number(value)) ||
-                                        'FoodID cannot not be a number',
-                                },
-                            })}
-                        />
-                        {errors.FoodID && (
-                            <Typography variant='body2' color='error'>
-                                {errors.FoodID.message}
-                            </Typography>
-                        )}
-
-                        <br />
-                        <br />
-                        <TextField
-                            label='ReviewText'
+                            label='Review Text'
                             fullWidth
                             {...register('ReviewText', {required: true})}
                         />
+                        {errors.ReviewText && (
+                            <Typography variant='body2' color='error'>
+                                {errors.ReviewText.message}
+                            </Typography>
+                        )}
                         <br />
                         <br />
-                        <TextField
-                            label='Rating'
-                            fullWidth
-                            {...register('Rating', {
-                                required: true,
-                                min: {
-                                    value: 1,
-                                    message: 'Rating must be above 0',
-                                },
-                                max: {
-                                    value: 10,
-                                    message: 'Rating must be at most 10',
-                                },
-                                validate: {
-                                    validNumber: (value) =>
-                                        !isNaN(value) ||
-                                        'Rating must be a number',
-                                },
-                            })}
+                        <Typography component='legend'>Rating</Typography>
+                        <Controller
+                            name='Rating'
+                            control={control}
+                            defaultValue={0}
+                            render={({field}) => (
+                                <Rating
+                                    {...field}
+                                    value={field.value}
+                                    onChange={(_, value) =>
+                                        field.onChange(value)
+                                    }
+                                />
+                            )}
                         />
                         {errors.Rating && (
                             <Typography variant='body2' color='error'>
@@ -167,10 +127,15 @@ const EditReview = () => {
                         <br />
                         <br />
                         <TextField
-                            label='AuthorName'
+                            label='Author Name'
                             fullWidth
                             {...register('AuthorName', {required: true})}
                         />
+                        {errors.AuthorName && (
+                            <Typography variant='body2' color='error'>
+                                {errors.AuthorName.message}
+                            </Typography>
+                        )}
                         <br />
                         <br />
                         <Button variant='contained' type='submit' sx={{mr: 2}}>

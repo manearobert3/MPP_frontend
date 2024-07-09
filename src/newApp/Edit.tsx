@@ -3,20 +3,26 @@ import {
     Button,
     Card,
     CardContent,
+    MenuItem,
     TextField,
     Typography,
 } from '@mui/material';
-import React, {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import {useNavigate, useParams} from 'react-router-dom';
 import useFoodStore from './components/FoodStore';
 import Food from './components/Interface';
+
 interface Inputs {
     FoodName: string;
     Calories: number;
     Fats: number;
     FoodDescription: string;
+    FoodType: string;
+    Protein: number;
+    Sugar: number;
 }
+
 const Edit = () => {
     const params = useParams();
     const {foods, editFood, handleClose} = useFoodStore();
@@ -25,26 +31,42 @@ const Edit = () => {
     const {
         register,
         handleSubmit,
+        setValue,
         reset,
         formState: {errors},
-    } = useForm<Inputs>({});
+    } = useForm<Inputs>({
+        defaultValues: {
+            FoodName: '',
+            Calories: 0,
+            Fats: 0,
+            FoodDescription: '',
+            FoodType: '',
+            Protein: 0,
+            Sugar: 0,
+        },
+    });
+
     const navigate = useNavigate();
-    React.useEffect(() => {
-        if (params.id)
-            setFood(foods.find((food) => food.FoodID === parseInt(params.id!)));
-        // const fetchFood = async () => {
-        //     try {
-        //         const response = await axios.get<Food>(
-        //             `http://localhost:5050/api/foods/${params.id}`,
-        //         );
-        //         setFood(response.data);
-        //         setFormData(response.data); // Set form data with fetched food details
-        //     } catch (error) {
-        //         console.error('Error fetching food:', error);
-        //     }
-        // };
-        // fetchFood();
-    }, [foods, params.id]);
+
+    useEffect(() => {
+        if (params.id) {
+            const foundFood = foods.find(
+                (food) => food.FoodID === parseInt(params.id!),
+            );
+            if (foundFood) {
+                setFood(foundFood);
+                // Set the default values for the form
+                setValue('FoodName', foundFood.FoodName);
+                setValue('Calories', foundFood.Calories);
+                setValue('Fats', foundFood.Fats);
+                setValue('FoodDescription', foundFood.FoodDescription);
+                setValue('FoodType', foundFood.FoodType);
+                setValue('Protein', foundFood.Protein);
+                setValue('Sugar', foundFood.Sugar);
+            }
+        }
+    }, [params.id, foods, setValue]);
+
     const onSubmit: SubmitHandler<Inputs> = (data) => {
         if (food) {
             editFood({
@@ -55,27 +77,7 @@ const Edit = () => {
         reset();
         handleClose();
     };
-    // const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    //     try {
-    //         const updatedFoodData = {
-    //             id: parseInt(String(params.id)),
-    //             name: data.name,
-    //             calories: data.calories,
-    //             fats: data.fats,
-    //             description: data.description,
-    //         };
-    //         console.error('food to send:', updatedFoodData);
-    //         await axios.put(
-    //             `http://localhost:5050/api/foods/${params.id}`,
-    //             updatedFoodData,
-    //         );
-    //         navigate('/');
-    //     } catch (error) {
-    //         console.error('Error updating food:', error);
-    //     }
-    //     reset();
-    //     handleClose();
-    // };
+
     return (
         <Box
             height={'100vh'}
@@ -98,19 +100,18 @@ const Edit = () => {
                         Edit Form
                     </Typography>
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        {/* <form onSubmit={handleSubmit}> */}
                         <TextField
-                            //defaultValue={food?.name}
                             label='Name'
                             fullWidth
                             {...register('FoodName', {
-                                required: true,
+                                required: 'Name is required',
                                 validate: {
                                     notNumber: (value) =>
                                         isNaN(Number(value)) ||
                                         'Name cannot be a number',
                                 },
                             })}
+                            size='small'
                         />
                         {errors.FoodName && (
                             <Typography variant='body2' color='error'>
@@ -124,17 +125,18 @@ const Edit = () => {
                             label='Calories'
                             fullWidth
                             {...register('Calories', {
-                                required: true,
+                                required: 'Calories is required',
                                 min: {
                                     value: 1,
                                     message: 'Calories must be above 0',
                                 },
                                 validate: {
                                     validNumber: (value) =>
-                                        !isNaN(value) ||
+                                        !isNaN(Number(value)) ||
                                         'Calories must be a number',
                                 },
                             })}
+                            size='small'
                         />
                         {errors.Calories && (
                             <Typography variant='body2' color='error'>
@@ -148,17 +150,18 @@ const Edit = () => {
                             label='Fats'
                             fullWidth
                             {...register('Fats', {
-                                required: true,
+                                required: 'Fats is required',
                                 min: {
-                                    value: 1,
-                                    message: 'Fats must be above 0',
+                                    value: 0,
+                                    message: 'Fats must be 0 or above',
                                 },
                                 validate: {
                                     validNumber: (value) =>
-                                        !isNaN(value) ||
+                                        !isNaN(Number(value)) ||
                                         'Fats must be a number',
                                 },
                             })}
+                            size='small'
                         />
                         {errors.Fats && (
                             <Typography variant='body2' color='error'>
@@ -170,8 +173,94 @@ const Edit = () => {
                         <TextField
                             label='Description'
                             fullWidth
-                            {...register('FoodDescription', {required: true})}
+                            {...register('FoodDescription', {
+                                required: 'Description is required',
+                            })}
+                            size='small'
                         />
+                        {errors.FoodDescription && (
+                            <Typography variant='body2' color='error'>
+                                {errors.FoodDescription.message}
+                            </Typography>
+                        )}
+                        <br />
+                        <br />
+                        <TextField
+                            label='Food Type'
+                            fullWidth
+                            select
+                            {...register('FoodType', {
+                                required: 'Food type is required',
+                            })}
+                            size='small'
+                        >
+                            {[
+                                'Fruits',
+                                'Sweets',
+                                'Vegetables',
+                                'Protein',
+                                'Dairy',
+                                'Carbohydrates',
+                                'Beverages',
+                            ].map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        {errors.FoodType && (
+                            <Typography variant='body2' color='error'>
+                                {errors.FoodType.message}
+                            </Typography>
+                        )}
+                        <br />
+                        <br />
+                        <TextField
+                            label='Protein'
+                            fullWidth
+                            {...register('Protein', {
+                                required: 'Protein is required',
+                                min: {
+                                    value: 0,
+                                    message: 'Protein must be 0 or above',
+                                },
+                                validate: {
+                                    validNumber: (value) =>
+                                        !isNaN(Number(value)) ||
+                                        'Protein must be a number',
+                                },
+                            })}
+                            size='small'
+                        />
+                        {errors.Protein && (
+                            <Typography variant='body2' color='error'>
+                                {errors.Protein.message}
+                            </Typography>
+                        )}
+                        <br />
+                        <br />
+                        <TextField
+                            label='Sugar'
+                            fullWidth
+                            {...register('Sugar', {
+                                required: 'Sugar is required',
+                                min: {
+                                    value: 0,
+                                    message: 'Sugar must be 0 or above',
+                                },
+                                validate: {
+                                    validNumber: (value) =>
+                                        !isNaN(Number(value)) ||
+                                        'Sugar must be a number',
+                                },
+                            })}
+                            size='small'
+                        />
+                        {errors.Sugar && (
+                            <Typography variant='body2' color='error'>
+                                {errors.Sugar.message}
+                            </Typography>
+                        )}
                         <br />
                         <br />
                         <Button variant='contained' type='submit' sx={{mr: 2}}>

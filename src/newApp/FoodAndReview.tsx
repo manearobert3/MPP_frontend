@@ -1,9 +1,10 @@
 import {Button, Container, CssBaseline} from '@mui/material';
 import Box from '@mui/material/Box';
 import axios from 'axios';
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {useNavigate, useParams} from 'react-router-dom';
+import config from '../config.json';
 
 interface FoodJoined {
     FoodID: number;
@@ -22,47 +23,29 @@ const OverviewJoinedTables = () => {
     const params = useParams<{id: string}>(); // Get the ID from the URL parameter
     const [allFoods, setAllFoods] = useState([] as FoodJoined[]);
 
+    const fetchData = useCallback(async () => {
+        try {
+            const response = await axios.get(
+                `${config.SERVER_URL}/api/food-foodreviews/${params.id}?pageNumber=${pageNumber}`,
+            );
+            const newFoods = response.data;
+
+            if (newFoods.length === 0) {
+                setHasMore(false);
+            } else {
+                setAllFoods((prevFoods) => [...prevFoods, ...newFoods]);
+                setPageNumber((prevPage) => prevPage + 1);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            setHasMore(false);
+        }
+    }, [pageNumber, params.id]);
+
     useEffect(() => {
         fetchData();
-    });
-
-    const loadMoreData = async () => {
-        try {
-            const response = await axios.get(
-                `http://localhost:5050/api/food-foodreviews/${params.id}?pageNumber=${pageNumber}`,
-            );
-            const newFoods = response.data;
-            setAllFoods(allFoods.concat(newFoods));
-            setPageNumber(pageNumber + 1);
-
-            // Check if there is more data
-            if (newFoods.length === 0) {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setHasMore(false);
-        }
-    };
-
-    const fetchData = async () => {
-        try {
-            const response = await axios.get(
-                `http://localhost:5050/api/food-foodreviews/${params.id}?pageNumber=${pageNumber}`,
-            );
-            const newFoods = response.data;
-            setPageNumber(pageNumber + 1);
-            setAllFoods(allFoods.concat(newFoods));
-
-            // Check if there is more data
-            if (newFoods.length === 0) {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setHasMore(false);
-        }
-    };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty dependency array ensures this runs once on mount
 
     return (
         <div>
@@ -89,7 +72,7 @@ const OverviewJoinedTables = () => {
                     <Box sx={{height: 400, width: '100%'}}>
                         <InfiniteScroll
                             dataLength={allFoods.length}
-                            next={loadMoreData}
+                            next={fetchData}
                             hasMore={hasMore}
                             loader={<h4>Loading...</h4>}
                             endMessage={

@@ -19,17 +19,19 @@ import config from '../config.json';
 interface Inputs {
     UserName: string;
     passwordMpp: string;
+    role: string;
 }
 interface IUserData {
     username: string;
 }
-const Register = () => {
+const Login = () => {
     const {
         register,
         handleSubmit,
         reset,
         formState: {errors},
     } = useForm<Inputs>({});
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const handleMouseDownPassword = (
         event: React.MouseEvent<HTMLButtonElement>,
@@ -37,18 +39,15 @@ const Register = () => {
         event.preventDefault();
     };
     const handleClickShowPassword = () => setShowPassword((show) => !show);
-    const [errorMsg, setErrorMsg] = useState<string>('');
-    const navigate = useNavigate();
     const signIn = useSignIn<IUserData>();
-
-    let token = '';
+    const [errorMsg, setErrorMsg] = useState<string>('');
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
         try {
             const response = await axios.put(
-                `${config.SERVER_URL}/api/login/register`,
+                `${config.SERVER_URL}/api/login/add`,
                 data,
             );
-            token = response.data.token; // Assuming token is returned in response.data.token
+            const token = response.data.token; // Assuming token is returned in response.data.token
             console.log(token);
             if (
                 signIn({
@@ -113,11 +112,13 @@ const Register = () => {
                         }}
                         fontWeight='bold'
                     >
-                        Register Here!
+                        Welcome!
                     </Typography>
                     {errorMsg && (
                         <Typography variant='body2' color='error'>
                             {errorMsg}
+                            <br />
+                            <br />
                         </Typography>
                     )}
                     <form onSubmit={handleSubmit(onSubmit)}>
@@ -165,7 +166,7 @@ const Register = () => {
                                 ),
                             }}
                             fullWidth
-                            InputLabelProps={{style: {color: 'White'}}} // Change label color here
+                            InputLabelProps={{style: {color: '#F5F6F3'}}} // Change label color here
                             sx={{
                                 '& input': {
                                     color: 'White', // Text color for the input field
@@ -183,16 +184,16 @@ const Register = () => {
                         )}
                         <br />
                         <br />
+                        <Button variant='contained' type='submit' sx={{mr: 2}}>
+                            Login
+                        </Button>
                         <Button
                             variant='contained'
                             onClick={() => {
-                                navigate('/login');
+                                navigate('/register');
                             }}
                             sx={{mr: 2}}
                         >
-                            Back
-                        </Button>
-                        <Button variant='contained' type='submit' sx={{mr: 2}}>
                             Register
                         </Button>
                     </form>
@@ -202,4 +203,4 @@ const Register = () => {
     );
 };
 
-export default Register;
+export default Login;
