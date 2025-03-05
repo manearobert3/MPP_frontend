@@ -72,40 +72,41 @@ Below are the main features of FitBuddy, with accompanying screenshots:
    FitBuddy includes a **role-based authentication system** with different levels of access: **Admin, Moderator, User**.
 
     Secure authentication ensures that each user sees only what they are authorized for.
-    <br />
-    <img src="public/assets/demo/auth_roles.png" alt="User Authentication & Roles" width="400">
+
+     <br />
+     <img src="public/assets/demo/auth_roles.png" alt="User Authentication & Roles" width="1000">
 
 2. **Home Page - Food Search**  
    Browse available foods, filter them by calorie range, and quickly see nutrition info.  
    <br />
-   <img src="public/assets/demo/homepage.png" alt="Home Page" width="400">
+   <img src="public/assets/demo/homepage.png" alt="Home Page" width="1000">
 
 3. **Daily Tracker**  
    Keep track of your daily meals, water cups, and remaining calories.  
    <br />
-   <img src="public/assets/demo/daily_tracker.png" alt="Daily Tracker" width="400">
+   <img src="public/assets/demo/daily_tracker.png" alt="Daily Tracker" width="1000">
 
 4. **Food Detail & Reviews**  
    View detailed information about a specific food item (e.g., macronutrients) and see user reviews. You can also add your own review!  
    <br />
-   <img src="public/assets/demo/detail.png" alt="Food Detail" width="400">
+   <img src="public/assets/demo/detail.png" alt="Food Detail" width="1000">
    <br />
-   <img src="public/assets/demo/reviews.png" alt="Reviews" width="400">
+   <img src="public/assets/demo/reviews.png" alt="Reviews" width="1000">
 
 5. **Caloric Distribution Chart**  
    Easily visualize how many foods fall into certain calorie ranges.  
    <br />
-   <img src="public/assets/demo/caloric_distribution.png" alt="Caloric Distribution" width="400">
+   <img src="public/assets/demo/caloric_distribution.png" alt="Caloric Distribution" width="1000">
 
 6. **Meal Plan Generation**  
    Generate a meal plan based on your daily calorie goal.  
    <br />
-   <img src="public/assets/demo/meal_plan.png" alt="Meal Plan" width="400">
+   <img src="public/assets/demo/meal_plan.png" alt="Meal Plan" width="1000">
 
 7. **Daily Summary Email**  
     Generate a summary of your daily stats and progress via email.  
    <br />
-   <img src="public/assets/demo/mail.png" alt="Daily Summary Email" width="400">
+   <img src="public/assets/demo/mail.png" alt="Daily Summary Email" width="1000">
 
 There are other functionalities regarding management of users and other entities.
 For more in-depth usage examples and instructions, please refer to the source code.
