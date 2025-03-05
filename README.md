@@ -73,8 +73,8 @@ Below are the main features of FitBuddy, with accompanying screenshots:
 
     Secure authentication ensures that each user sees only what they are authorized for.
 
-     <br />
-     <img src="public/assets/demo/auth_roles.png" alt="User Authentication & Roles" width="1000">
+      <br />
+      <img src="public/assets/demo/auth_roles.png" alt="User Authentication & Roles" width="1000">
 
 2. **Home Page - Food Search**  
    Browse available foods, filter them by calorie range, and quickly see nutrition info.  
@@ -89,7 +89,7 @@ Below are the main features of FitBuddy, with accompanying screenshots:
 4. **Food Detail & Reviews**  
    View detailed information about a specific food item (e.g., macronutrients) and see user reviews. You can also add your own review!  
    <br />
-   <img src="public/assets/demo/detail.png" alt="Food Detail" width="1000">
+   <img src="public/assets/demo/Detail.png" alt="Food Detail" width="1000">
    <br />
    <img src="public/assets/demo/reviews.png" alt="Reviews" width="1000">
 
